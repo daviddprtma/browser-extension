@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "NODE_ENV=development webpack --watch --config webpack.config.js",
     "build": "NODE_ENV=production webpack --config webpack.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "analyze": "NODE_ENV=production ANALYZE=true webpack --config webpack.config.js"
   },
   "keywords": [
     "browser extension",
@@ -17,24 +17,28 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.10",
     "@types/chrome": "^0.0.326",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "autoprefixer": "^10.4.21",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
+    "css-minimizer-webpack-plugin": "^7.0.2",
     "html-webpack-plugin": "^5.6.3",
     "postcss": "^8.5.6",
     "postcss-loader": "^8.1.1",
     "style-loader": "^4.0.0",
     "tailwindcss": "^4.1.10",
+    "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
     "webpack": "^5.99.9",
+    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.10",
+    "dotenv-webpack": "^8.1.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   }

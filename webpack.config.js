@@ -1,10 +1,14 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   mode: process.env.NODE_ENV || 'development',
-  devtool: 'inline-source-map',
+  devtool: process.env.NODE_ENV === 'production' ? false : 'inline-source-map',
   entry: {
     popup: path.resolve(__dirname, 'src', 'popup', 'index.tsx'),
     background: path.resolve(__dirname, 'src', 'background', 'index.ts')
@@ -34,7 +38,9 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
     alias: {
-      'src': path.resolve(__dirname, 'src')
+      'src': path.resolve(__dirname, 'src'),
+      'react': path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom')
     }
   },
   plugins: [
@@ -54,16 +60,54 @@ module.exports = {
           to: path.resolve(__dirname, 'dist')
         }
       ]
-    })
+    }),
+    new Dotenv({
+      systemvars: true,
+      safe: true
+    }),
+    ...(process.env.ANALYZE === 'true' ? [
+      new BundleAnalyzerPlugin({
+        analyzerMode: 'server',
+        analyzerHost: 'localhost',
+        analyzerPort: 8888,
+        openAnalyzer: true,
+        reportFilename: 'bundle-analysis.html',
+        defaultSizes: 'gzip',
+        statsFilename: 'stats.json',
+        statsOptions: null,
+        logLevel: 'info'
+      })
+    ] : [])
   ],
   optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          compress: {
+            drop_console: process.env.NODE_ENV === 'production',
+          },
+        },
+      }),
+      new CssMinimizerPlugin(),
+    ],
     splitChunks: {
-      chunks: 'all'
+      chunks: 'all',
+      maxInitialRequests: Infinity,
+      minSize: 0,
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name(module) {
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+            return `vendor.${packageName.replace('@', '')}`;
+          },
+        },
+      },
     }
+  },
+  performance: {
+    hints: process.env.NODE_ENV === 'production' ? 'warning' : false,
+    maxEntrypointSize: 512000,
+    maxAssetSize: 512000,
   }
 };
-
-// "scripts": {
-//   "dev": "NODE_ENV=development webpack --watch --config webpack.config.js",
-//   "build": "NODE_ENV=production webpack --config webpack.config.js"
-// }
