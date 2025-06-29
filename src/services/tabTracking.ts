@@ -26,6 +26,37 @@ export function tabTracing() {
     });
 }
 
+function getMainDomain(url: string): string {
+    try {
+        // Handle special browser URLs
+        if (
+            url.startsWith('chrome://') ||
+            url.startsWith('edge://') ||
+            url.startsWith('about:') ||
+            url.startsWith('file://')
+        ) {
+            // Extract protocol and first path segment
+            const match = url.match(/^([a-z\-]+:\/\/)([^\/?#]+)?/i);
+            if (match) {
+                // e.g. chrome://extensions/?id=... => chrome://extensions
+                const protocol = match[1];
+                // For chrome://, edge://, etc., the "host" is the first path segment
+                const pathMatch = url.replace(protocol, '').split(/[\/?#]/)[0];
+                return protocol + pathMatch;
+            }
+            return url;
+        }
+        const { protocol, hostname } = new URL(url);
+        const parts = hostname.split('.');
+        // Handles domains like sub.domain.com, returns domain.com
+        if (parts.length >= 2) {
+            return `${protocol}//${parts.slice(-2).join('.')}`;
+        }
+        return `${protocol}//${hostname}`;
+    } catch {
+        return url;
+    }
+}
 
 export async function publishAllTabs() {
     const ws = getWebSocket();
@@ -38,7 +69,7 @@ export async function publishAllTabs() {
     const tabData = tabs.map(tab => ({
         id: tab.id,
         title: tab.title,
-        url: tab.url
+        url: tab.url ? getMainDomain(tab.url) : ''
     }));
 
     ws.send(JSON.stringify({
@@ -66,7 +97,7 @@ export async function publishActiveTab() {
             id: activeTab[0].id,
             userId,
             title: activeTab[0].title,
-            url: activeTab[0].url,
+            url: activeTab[0].url ? getMainDomain(activeTab[0].url) : '',
         }
     }))
 }
