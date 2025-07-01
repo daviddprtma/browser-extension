@@ -1,4 +1,4 @@
-# PeerPulse Browser Extension
+# BrowsePing Browser Extension
 
 A simple web browser extension built with React, TypeScript, Webpack and Tailwind CSS that socializes your browsing experience.
 
