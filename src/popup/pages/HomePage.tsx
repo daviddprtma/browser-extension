@@ -6,6 +6,7 @@ import { DashboardHeader } from '../components/dashboard';
 import FriendsTabs from '../components/dashboard/FriendsTabs';
 import AnalyticsPanel from '../components/analytics/AnalyticsPanel';
 import SettingsPanel from '../components/settings/SettingsPanel';
+import { flushAnalytics } from '../../services/api';
 
 const HomePage: React.FC = () => {
   const { user, loading, logout } = useAuth();
@@ -17,7 +18,12 @@ const HomePage: React.FC = () => {
     window.location.href = '#/';
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
+    if (!user) return;
+    await flushAnalytics(user.token);
+    await new Promise<void>((resolve) => {
+      chrome.runtime.sendMessage({ type: "PUBLISH_ACTIVE_TAB" }, () => resolve());
+    });
     window.location.reload();
   };
 

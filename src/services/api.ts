@@ -155,3 +155,11 @@ export const updatePrivacySettings = async (data: any, token: string) => {
   });
   return await res.json();
 };
+
+export const flushAnalytics = async (token: string) => {
+  const res = await fetch(`${BACKEND_URL}/api/analytics/flush`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return await res.json();
+};

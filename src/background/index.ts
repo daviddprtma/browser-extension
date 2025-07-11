@@ -1,5 +1,5 @@
 import { closeWebSocket, initializeWebSocket, isWebSocketConnected } from "../services/websocket";
-import { tabTracing } from "../services/tabTracking";
+import { tabTracing, publishActiveTab } from "../services/tabTracking";
 
 console.log('Background script loaded');
 
@@ -46,6 +46,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.type === 'POPUP_OPENED') {
     initializeWebSocket();
     startReconnectLoop();
+  } else if (message.type === 'PUBLISH_ACTIVE_TAB') {
+    publishActiveTab().then(() => sendResponse());
+    return true; // async
   }
   return true;
 });
