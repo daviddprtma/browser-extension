@@ -163,3 +163,10 @@ export const flushAnalytics = async (token: string) => {
   });
   return await res.json();
 };
+
+export async function fetchHourlyPresence(token: string, days = 7) {
+  const res = await fetch(`http://localhost:3000/api/analytics/presence/hourly?days=${days}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.json();
+}
