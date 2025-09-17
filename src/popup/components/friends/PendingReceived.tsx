@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useFriends } from '../../context/FriendsContext';
 import { fetchPendingReceivedRequests, acceptFriendRequest, ignoreFriendRequest } from '../../../services/api';
 import UserProfile from '../profile/OtherUserProfile';
 
@@ -11,6 +12,7 @@ interface Request {
 
 const PendingReceived: React.FC = () => {
   const { user } = useAuth();
+  const { refresh } = useFriends();
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<Request | null>(null);
@@ -30,10 +32,12 @@ const PendingReceived: React.FC = () => {
     if (statusObj.status === 'none' && selectedUser) {
       setRequests(reqs => reqs.filter(r => r.requestId !== selectedUser.requestId));
       setSelectedUser(null);
+      refresh();
     }
     if (statusObj.status === 'friends' && selectedUser) {
       setRequests(reqs => reqs.filter(r => r.requestId !== selectedUser.requestId));
       setSelectedUser(null);
+      refresh();
     }
   };
 
@@ -72,6 +76,7 @@ const PendingReceived: React.FC = () => {
                 e.stopPropagation();
                 await acceptFriendRequest(req.requestId, user.token);
                 setRequests(requests.filter(r => r.requestId !== req.requestId));
+                refresh();
               }}
             >
               Accept
@@ -82,6 +87,7 @@ const PendingReceived: React.FC = () => {
                 e.stopPropagation();
                 await ignoreFriendRequest(req.requestId, user.token);
                 setRequests(requests.filter(r => r.requestId !== req.requestId));
+                refresh();
               }}
             >
               Ignore

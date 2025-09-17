@@ -1,13 +1,46 @@
 import React from 'react';
-import { FiUser, FiEdit3, FiCamera, FiMail, FiCalendar, FiChevronLeft } from 'react-icons/fi';
+import { FiUser, FiEdit3, FiCamera, FiMail, FiCalendar, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const ProfilePage: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleBack = () => {
-    window.location.href = '#/more';
+    navigate('/more');
   };
+
+  const profileSections = [
+    {
+      icon: <FiEdit3 size={20} />,
+      title: 'Edit Profile',
+      description: 'Update your display name, bio, and email',
+      path: '/profile/edit',
+      available: true
+    },
+    {
+      icon: <FiMail size={20} />,
+      title: 'Social Media Links',
+      description: 'Add your social media profiles and websites',
+      path: '/profile/social',
+      available: true
+    },
+    {
+      icon: <FiCalendar size={20} />,
+      title: 'Personal Details',
+      description: 'Manage birthday and other personal information',
+      path: '/profile/personal',
+      available: true
+    },
+    {
+      icon: <FiCamera size={20} />,
+      title: 'Profile Picture',
+      description: 'Upload or change your profile picture',
+      path: '/profile/avatar',
+      available: false
+    }
+  ];
 
   return (
     <div className="h-full flex flex-col">
@@ -41,59 +74,66 @@ const ProfilePage: React.FC = () => {
               <FiCamera size={14} />
             </button>
           </div>
-          
           <h2 className="text-xl font-bold text-gray-800 mb-1">
             {user?.displayName || user?.username}
           </h2>
           <p className="text-gray-600">@{user?.username}</p>
         </div>
 
-        {/* Coming Soon Features */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Profile Editing Features</h3>
+        {/* Profile Management Sections */}
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Profile Management</h3>
           
-          {[
-            {
-              icon: <FiEdit3 size={20} />,
-              title: 'Edit Display Name',
-              description: 'Change how your name appears to other users'
-            },
-            {
-              icon: <FiCamera size={20} />,
-              title: 'Upload Avatar',
-              description: 'Upload a profile picture or choose from presets'
-            },
-            {
-              icon: <FiUser size={20} />,
-              title: 'Bio & Status',
-              description: 'Add a bio and custom status message'
-            },
-            {
-              icon: <FiMail size={20} />,
-              title: 'Contact Information',
-              description: 'Update email and social media links'
-            },
-            {
-              icon: <FiCalendar size={20} />,
-              title: 'Personal Details',
-              description: 'Manage birthday and other personal information'
-            }
-          ].map((feature, index) => (
-            <div key={index} className="bg-white border border-gray-200 rounded-xl p-4 opacity-60">
+          {profileSections.map((section, index) => (
+            <button
+              key={index}
+              onClick={() => section.available && navigate(section.path)}
+              disabled={!section.available}
+              className={`w-full bg-white border border-gray-200 rounded-xl p-4 text-left transition-colors ${
+                section.available 
+                  ? 'hover:bg-gray-50 hover:border-gray-300 cursor-pointer' 
+                  : 'opacity-60 cursor-not-allowed'
+              }`}
+            >
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gray-100 text-gray-500 rounded-lg">
-                  {feature.icon}
+                <div className={`p-2 rounded-lg ${
+                  section.available 
+                    ? 'bg-blue-100 text-blue-600' 
+                    : 'bg-gray-100 text-gray-500'
+                }`}>
+                  {section.icon}
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-medium text-gray-800">{feature.title}</h4>
-                  <p className="text-sm text-gray-500 mt-1">{feature.description}</p>
+                  <h4 className="font-medium text-gray-800">{section.title}</h4>
+                  <p className="text-sm text-gray-500 mt-1">{section.description}</p>
                 </div>
-                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
-                  Coming Soon
-                </span>
+                <div className="flex items-center space-x-2">
+                  {!section.available && (
+                    <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
+                      Coming Soon
+                    </span>
+                  )}
+                  {section.available && (
+                    <FiChevronRight size={20} className="text-gray-400" />
+                  )}
+                </div>
               </div>
-            </div>
+            </button>
           ))}
+        </div>
+
+        {/* Privacy Reminder */}
+        <div className="mt-4 bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <h4 className="font-semibold text-blue-800 mb-2">Privacy Reminder</h4>
+          <p className="text-sm text-blue-700">
+            Remember to check your Privacy & Security settings to control who can see your profile information.
+          </p>
+          <button
+            onClick={() => navigate('/privacy')}
+            className="mt-2 text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Go to Privacy Settings →
+          </button>
         </div>
       </div>
     </div>

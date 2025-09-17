@@ -93,6 +93,17 @@ export const fetchPendingReceivedRequests = async (token: string) => {
   return await res.json();
 };
 
+export const fetchPendingReceivedRequestsCount = async (token: string) => {
+  const res = await fetch(`${BACKEND_URL}/api/friends/requests/pending`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const response = await res.json();
+  if (response.success && Array.isArray(response.data)) {
+    return { success: true, count: response.data.length };
+  }
+  return { success: false, count: 0 };
+};
+
 export const fetchPendingSentRequests = async (token: string) => {
   const res = await fetch(`${BACKEND_URL}/api/friends/requests/sent`, {
     headers: { Authorization: `Bearer ${token}` }
@@ -350,6 +361,19 @@ export const markAllNotificationsAsRead = async (token: string) => {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({ markAll: true })
+  });
+  return await response.json();
+};
+
+// Profile update API
+export const updateProfile = async (profileData: any, token: string) => {
+  const response = await fetch(`${BACKEND_URL}/api/profile`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify(profileData)
   });
   return await response.json();
 };

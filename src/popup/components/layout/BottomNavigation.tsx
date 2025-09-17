@@ -15,7 +15,7 @@ interface NavItem {
 const BottomNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { friends } = useFriends();
+  const { friends, pendingRequestsCount } = useFriends();
   const { unreadCount, pendingCount } = useMessage();
   
   const navItems: NavItem[] = [
@@ -31,8 +31,7 @@ const BottomNavigation: React.FC = () => {
       icon: <FiUsers size={20} />,
       path: '/friends',
       getBadge: () => {
-        // TODO: Get actual pending requests count from API
-        return 0;
+        return pendingRequestsCount;
       }
     },
     {

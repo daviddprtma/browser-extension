@@ -1,20 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-
-interface User {
-  id: string;
-  username: string;
-  displayName?: string;
-  token: string;
-  onlinePrivacy?: string;
-  lastOnlinePrivacy?: string;
-  tabPrivacy?: string;
-}
+import { User, updateUserInLocalStorage, getUserFromLocalStorage, clearUserFromLocalStorage } from '../utils/localStorage';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (userData: User) => void;
   logout: () => void;
+  updateUser: (updatedFields: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,9 +18,9 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
   useEffect(() => {
     const checkUserSession = async () => {
       try {
-        const userData = await chrome.storage.local.get('user');
-        if (userData.user) {
-          setUser(JSON.parse(userData.user));
+        const userData = await getUserFromLocalStorage();
+        if (userData) {
+          setUser(userData);
           chrome.runtime.sendMessage({ type: 'POPUP_OPENED' });
         }
       } catch (error) {
@@ -47,14 +39,27 @@ export const AuthProvider: React.FC<{children: React.ReactNode}> = ({ children }
     chrome.runtime.sendMessage({ type: 'LOGIN_SUCCESS'});
   };
 
-  const logout = () => {
+  const updateUser = async (updatedFields: Partial<User>) => {
+    if (!user) return;
+    
+    try {
+      const updatedUser = await updateUserInLocalStorage(updatedFields);
+      if (updatedUser) {
+        setUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Failed to update user:', error);
+    }
+  };
+
+  const logout = async () => {
     setUser(null);
-    chrome.storage.local.remove('user');
+    await clearUserFromLocalStorage();
     chrome.runtime.sendMessage({ type: 'LOGOUT' });
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

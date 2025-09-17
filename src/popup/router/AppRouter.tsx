@@ -20,6 +20,9 @@ import MorePage from '../pages/MorePage';
 
 // Settings & Profile Pages
 import ProfilePage from '../pages/ProfilePage';
+import ProfileEditPage from '../pages/profile/ProfileEditPage';
+import PersonalDetailsPage from '../pages/profile/PersonalDetailsPage';
+import SocialMediaPage from '../pages/profile/SocialMediaPage';
 
 // Future Feature Pages
 import NotificationPage from '../pages/NotificationPage';
@@ -133,6 +136,10 @@ const AuthenticatedApp: React.FC = () => {
         {/* other pages */}
         <Route path="/settings" element={<PrivacyPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile/edit" element={<ProfileEditPage />} />
+        <Route path="/profile/personal" element={<PersonalDetailsPage />} />
+        <Route path="/profile/social" element={<SocialMediaPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/notifications" element={<NotificationPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/help" element={<HelpPage />} />

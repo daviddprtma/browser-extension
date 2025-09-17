@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { fetchFriendsWithStatus } from '../../services/api';
+import { fetchFriendsWithStatus, fetchPendingReceivedRequestsCount } from '../../services/api';
 
 interface Friend {
   id: string;
@@ -29,6 +29,7 @@ interface FriendsContextType {
   refresh: () => void;
   activeTabs: Record<string, ActiveTab | undefined>;
   allTabs: Record<string, Tab[] | undefined>;
+  pendingRequestsCount: number;
 }
 
 const FriendsContext = createContext<FriendsContextType | undefined>(undefined);
@@ -39,6 +40,7 @@ export const FriendsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(true);
   const [activeTabs, setActiveTabs] = useState<Record<string, ActiveTab>>({});
   const [allTabs, setAllTabs] = useState<Record<string, Tab[]>>({});
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
   const loadFriends = async () => {
     if (!user) return;
@@ -59,10 +61,16 @@ export const FriendsProvider: React.FC<{ children: React.ReactNode }> = ({ child
       });
       setActiveTabs(initialActiveTabs);
       setAllTabs(initialAllTabs);
+
+      const countRes = await fetchPendingReceivedRequestsCount(user.token);
+      if (countRes.success) {
+        setPendingRequestsCount(countRes.count);
+      }
     } catch {
       setFriends([]);
       setActiveTabs({});
       setAllTabs({});
+      setPendingRequestsCount(0);
     }
     setLoading(false);
   };
@@ -108,7 +116,7 @@ export const FriendsProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, []);
 
   return (
-    <FriendsContext.Provider value={{ friends, loading, refresh: loadFriends, activeTabs, allTabs }}>
+    <FriendsContext.Provider value={{ friends, loading, refresh: loadFriends, activeTabs, allTabs, pendingRequestsCount }}>
       {children}
     </FriendsContext.Provider>
   );
