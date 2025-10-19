@@ -146,11 +146,11 @@ const FriendsList: React.FC<FriendsListProps> = ({ homeView = false }) => {
                               Active
                             </span>
                           </div>
-                          {activeTab.title && (
+                          {/* {activeTab.title && (
                             <p className="text-xs text-blue-600 truncate">
                               {activeTab.title}
                             </p>
-                          )}
+                          )} */}
                         </div>
                         <a
                           href={activeTab.url}
@@ -186,7 +186,8 @@ const FriendsList: React.FC<FriendsListProps> = ({ homeView = false }) => {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="group relative"
-                              title={`${getDomain(tab.url)} - ${tab.title}`}
+                              // title={`${getDomain(tab.url)} - ${tab.title}`}
+                              title={`${getDomain(tab.url)}`}                              
                               onClick={e => e.stopPropagation()}
                             >
                               <img
